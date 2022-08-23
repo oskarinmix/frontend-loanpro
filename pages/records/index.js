@@ -3,15 +3,17 @@ import Link from "next/link";
 import React from "react";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { useRouter } from "next/router";
 import { useUserContext } from "../../components/DataProvider";
 
 const Index = ({ records, pages }) => {
   const { user } = useUserContext();
+  const router = useRouter();
   const handleRemove = async (record) => {
     axios
       .delete(`${process.env.NEXT_PUBLIC_SERVER_URL}/records/${record._id}`)
       .then((resp) => {
-        console.log("DELETED");
+        router.reload();
       });
   };
   if (user) {
@@ -29,31 +31,48 @@ const Index = ({ records, pages }) => {
               </a>
             </Link>
           </div>
-          <ul className="flex flex-col w-full">
-            {records.map((record) => (
-              <li
-                key={record._id}
-                className="flex justify-between items-center w-full border border-gray-300 rounded-md p-4 my-2"
-              >
-                <h2 className="text-sm text-blue-500 font-bold">
-                  {record._id}
-                </h2>
-                <h2 className="text-sm text-blue-500 font-bold">
-                  {record.operationId.type}
-                </h2>
-                <h2 className="text-sm text-blue-500 font-bold">
-                  {record.operationResponse}
-                </h2>
-                <h2 className="text-md text-red-500">Cost: {record.amount}</h2>
-                <a
-                  onClick={() => handleRemove(record)}
-                  className="text-sm bg-black text-white font-bold p-2 cursor-pointer"
-                >
-                  Delete
-                </a>
-              </li>
-            ))}
-          </ul>
+          {records.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2 w-1/5">OperationID</th>
+                  <th className="border px-4 py-2 w-1/5">Type</th>
+                  <th className="border px-4 py-2">Cost</th>
+                  <th className="border px-4 py-2">Result</th>
+                  <th className="border px-4 py-2">Date</th>
+                  <th className="border px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {records.map((record) => (
+                  <tr key={record._id}>
+                    <td className="border px-4 py-2">{record._id}</td>
+                    <td className="border px-4 py-2">
+                      {record.operationId.type}
+                    </td>
+                    <td className="border px-4 py-2">{record.amount}</td>
+                    <td className="border px-4 py-2">
+                      {record.operationResponse}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {record.createdAt.toLocaleString()}
+                    </td>
+
+                    <td className="border px-4 py-2">
+                      <a
+                        className="flex bg-slate-900 text-white text-bold text-sm px-8 py-4 cursor-pointer"
+                        onClick={() => handleRemove(record)}
+                      >
+                        Delete
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <h1 className="text-2xl my-4"> No records found</h1>
+          )}
         </div>
       </>
     );
