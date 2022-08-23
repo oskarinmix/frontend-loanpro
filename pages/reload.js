@@ -28,7 +28,7 @@ const LoginForm = () => {
     try {
       const resp = await axios({
         method: "put",
-        url: `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/balance/${user._id}`,
+        url: `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/reload/${user._id}`,
         data: body,
       });
 
